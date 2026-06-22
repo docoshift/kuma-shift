@@ -24,7 +24,7 @@ const STAFF = [
 const DOW = ["日", "月", "火", "水", "木", "金", "土"];
 const ADMIN_PASSWORD = "Doco5555";
 const NAME_W = 100;
-const COL_W = 58;
+const COL_W = typeof window !== "undefined" ? Math.floor((window.innerWidth - 100) / 14) : 58;
 
 function getDow(y, m, d) { return new Date(y, m - 1, d).getDay(); }
 function getNeeded(dow) { return dow === 5 || dow === 6 ? 4 : dow === 0 ? 3 : 2; }
