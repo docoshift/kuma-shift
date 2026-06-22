@@ -310,7 +310,7 @@ export default function App() {
 
   const thName = { position:"sticky", left:0, zIndex:3, background:"#f0f0f0", border:"0.5px solid #bbb", padding:"4px 6px", fontWeight:600, fontSize:12, width:NAME_W, minWidth:NAME_W, maxWidth:NAME_W, textAlign:"left" };
   const tdName = { position:"sticky", left:0, zIndex:2, background:"#f9f9f9", border:"0.5px solid #ddd", padding:"3px 6px", whiteSpace:"nowrap", fontWeight:500, fontSize:11, width:NAME_W, minWidth:NAME_W, maxWidth:NAME_W };
-  const colW = zoomOut ? Math.floor((window.innerWidth - 60) / adminDays) : COL_W;
+  const colW = zoomOut ? Math.floor((window.innerWidth - 60) / 31) : COL_W;
   const thDate = (dow) => ({ background:"#f0f0f0", border:"0.5px solid #bbb", padding:"2px 0", textAlign:"center", color: dow===0?"#E24B4A":dow===6?"#185FA5":"#444", fontSize:10, fontWeight:500, width:colW, minWidth:colW, maxWidth:colW });
   const tdDate = (isOver) => ({ border:"0.5px solid #ddd", padding:1, verticalAlign:"top", background: isOver?"#f0f9e8":"#fff", width:colW, minWidth:colW, maxWidth:colW, height:40 });
   const chip = (bg, color) => ({ fontSize:11, background:bg, color, borderRadius:2, padding:"2px 4px", margin:"1px 0", cursor:"grab", lineHeight:1.5, display:"flex", justifyContent:"space-between", alignItems:"center", fontWeight:600 });
@@ -530,7 +530,7 @@ export default function App() {
                   <button onClick={printCalendar} style={{ padding:"6px 14px", background:"#E24B4A", color:"#fff", border:"none", borderRadius:4, cursor:"pointer", fontSize:13, fontWeight:600 }}>🖨️ 印刷/PDF</button>
                 </div>
               </div>
-              <div style={{ overflowX:"auto", overflowY:"auto", maxHeight:"calc(100vh - 120px)", width:"100%" }}>
+              <div style={{ overflowX:"auto", overflowY:"auto", ...(zoomOut?{transform:"scale(0.45)",transformOrigin:"top left",height:"222%"}:{}), maxHeight:"calc(100vh - 120px)", width:"100%" }}>
                 <table style={{ borderCollapse:"collapse", tableLayout:"fixed", width: zoomOut ? "100%" : NAME_W + COL_W * adminDays }}>
                   <thead style={{ position:"sticky", top:0, zIndex:4 }}>
                     <tr>
