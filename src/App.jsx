@@ -529,7 +529,7 @@ export default function App() {
                   <button onClick={printCalendar} style={{ padding:"6px 14px", background:"#E24B4A", color:"#fff", border:"none", borderRadius:4, cursor:"pointer", fontSize:13, fontWeight:600 }}>🖨️ 印刷/PDF</button>
                 </div>
               </div>
-              <div style={{ overflowX:"auto", overflowY:"auto", ...(zoomOut?{transform:"scale(0.45)",transformOrigin:"top left"}:{}), maxHeight:"calc(100vh - 120px)", width:"100%" }}>
+              <div style={{ overflowX:"auto", overflowY:"auto", ...(zoomOut?{transform:"scale(0.45)",transformOrigin:"top left",width:"222%"}:{}), maxHeight:"calc(100vh - 120px)", width:"100%" }}>
                 <table style={{ borderCollapse:"collapse", tableLayout:"fixed", width: NAME_W + COL_W * adminDays }}>
                   <thead style={{ position:"sticky", top:0, zIndex:4 }}>
                     <tr>
