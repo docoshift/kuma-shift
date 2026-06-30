@@ -1,3 +1,7 @@
+# 環境変数（絶対にGitHubに送らない）
+.env
+.env.*
+
 # Logs
 logs
 *.log

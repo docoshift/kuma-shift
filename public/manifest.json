@@ -1,0 +1,14 @@
+{
+  "name": "DocoSHIFT",
+  "short_name": "DocoSHIFT",
+  "description": "居酒屋シフト管理アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#185FA5",
+  "theme_color": "#185FA5",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
