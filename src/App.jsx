@@ -896,9 +896,9 @@ export default function App() {
               </div>
               {/* 人件費サマリー */}
               {staffList.some(s => s.hourly_wage) && (
-                <div style={{ background:"#E6F1FB", border:"2px solid #185FA5", borderRadius:10, padding:"14px 18px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                  <span style={{ fontSize:16, fontWeight:700, color:"#185FA5" }}>📊 {YEAR}年{adminMonth}月 推定人件費</span>
-                  <span style={{ fontSize:24, fontWeight:900, color:"#185FA5" }}>¥{calcLaborCost().toLocaleString()}</span>
+                <div style={{ background:"#E6F1FB", border:"2px solid #185FA5", borderRadius:10, padding:isMobile?"14px 18px":"22px 28px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <span style={{ fontSize:isMobile?16:24, fontWeight:700, color:"#185FA5" }}>📊 {YEAR}年{adminMonth}月 推定人件費</span>
+                  <span style={{ fontSize:isMobile?24:36, fontWeight:900, color:"#185FA5" }}>¥{calcLaborCost().toLocaleString()}</span>
                 </div>
               )}
               {!showRetired && activeStaff.length===0 && <div style={{ textAlign:"center", color:"#999", padding:"2rem", fontSize:16 }}>スタッフが登録されていません</div>}
