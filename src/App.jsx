@@ -630,7 +630,7 @@ export default function App() {
             {Array.from({ length: daysInMonth }, (_, i) => i+1).map(d => {
               const dow = getDow(YEAR, month, d);
               return (
-                <div key={d} onClick={() => openWishModal(d)} style={{ aspectRatio:"1/1", minHeight: isMobile?44:150, borderRadius: isMobile?4:8, border: wishDays[d]?"3px solid #185FA5":"1px solid #e0e0e0", padding: isMobile?"4px 2px":"10px 4px", cursor:"pointer", background:wishDays[d]?"#ddeeff":"#fff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", boxShadow: wishDays[d]?"0 2px 10px rgba(24,95,165,0.2)":"none", boxSizing:"border-box" }}>
+                <div key={d} onClick={() => openWishModal(d)} style={{ aspectRatio:"1/1", minHeight: isMobile?44:150, borderRadius: isMobile?4:8, border: wishDays[d]?"3px solid #185FA5":"1px solid #e0e0e0", padding: isMobile?"4px 2px":"10px 4px", cursor:"pointer", background:wishDays[d]?"#ddeeff":"#fff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent: isMobile?"center":"flex-start", boxShadow: wishDays[d]?"0 2px 10px rgba(24,95,165,0.2)":"none", boxSizing:"border-box" }}>
                   <div style={{ fontSize: isMobile?13:30, fontWeight:700, color:dow===0?"#E24B4A":dow===6?"#185FA5":"#333" }}>{d}</div>
                   {wishDays[d] && (
                     isMobile
