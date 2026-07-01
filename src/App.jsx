@@ -69,7 +69,7 @@ export default function App() {
 
   const [page, setPage] = useState("staff");
   const [staffPage, setStaffPage] = useState("wish");
-  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [adminUnlocked, setAdminUnlocked] = useState(() => localStorage.getItem('docoshift_admin') === 'true');
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState("");
@@ -376,7 +376,14 @@ export default function App() {
 
   function openWishModal(d) { setModalDay(d); setStartTime(wishDays[d]?.split("-")[0] || "17:00"); setEndTime(wishDays[d]?.split("-")[1] || "24:00"); }
   function saveWishModal() { setWishDays(p => ({ ...p, [modalDay]: `${startTime}-${endTime}` })); setModalDay(null); }
-  function login() { if (pwInput === ADMIN_PASSWORD) { setAdminUnlocked(true); setPwError(false); } else setPwError(true); }
+  function login() {
+    if (pwInput === ADMIN_PASSWORD) {
+      localStorage.setItem('docoshift_admin', 'true');
+      setAdminUnlocked(true);
+      setAdminBypass(true);
+      setPwError(false);
+    } else setPwError(true);
+  }
   async function removeWish(sid, d) {
     setShiftState(p => ({ ...p, [`${sid}_${d}`]: { ...p[`${sid}_${d}`], wishOff: true } }));
     await supabase.from("shift_state").upsert(
