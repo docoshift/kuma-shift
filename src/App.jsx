@@ -653,7 +653,8 @@ export default function App() {
         <div style={{ background:"white", borderRadius:20, padding:"36px 28px", maxWidth:340, width:"100%", textAlign:"center" }}>
           <div style={{ fontSize:56, marginBottom:12 }}>🚫</div>
           <div style={{ fontSize:20, fontWeight:700, color:"#333", marginBottom:12 }}>アクセスできません</div>
-          <div style={{ fontSize:14, color:"#888" }}>このアカウントは無効になっています。<br/>管理者にお問い合わせください。</div>
+          <div style={{ fontSize:14, color:"#888", marginBottom:24 }}>このアカウントは無効になっています。<br/>管理者にお問い合わせください。</div>
+          <div onClick={() => setAdminBypass(true)} style={{ fontSize:12, color:"#ccc", cursor:"pointer" }}>管理者の方はこちら</div>
         </div>
       </div>
     );
