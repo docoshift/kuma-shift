@@ -4,33 +4,24 @@ const fs = require('fs');
 function makeBearPNG(size) {
   const s = size / 512;
 
-  // カラーパレット（よりリッチな配色）
-  const NAVY      = [18, 52, 96];    // 濃紺背景
-  const BLUE      = [24, 95, 165];   // メインブルー
-  const LIGHTBLUE = [56, 140, 220];  // ハイライトブルー
-  const BROWN     = [90, 55, 25];    // 耳・輪郭
-  const FUR       = [210, 165, 110]; // 顔の毛色
-  const LIGHTFUR  = [235, 200, 155]; // 明るい毛色
-  const SNOUT     = [185, 135, 85];  // 鼻周り
-  const DARK      = [30, 15, 5];     // 目・鼻
-  const WHITE     = [255, 255, 255]; // 目の輝き
-  const PINK      = [220, 140, 130]; // 鼻ピンク
-  const CREAM     = [245, 225, 190]; // 鼻下クリーム
+  // 明るいきれいな青のパレット
+  const BG_TOP    = [100, 180, 255]; // 明るいスカイブルー
+  const BG_BOT    = [24,  95,  200]; // 鮮やかなブルー
+  const BROWN     = [80,  45,  10];  // 耳の輪郭
+  const FUR       = [220, 175, 120]; // 顔の毛色
+  const LIGHTFUR  = [245, 215, 165]; // 明るい毛色
+  const INNEAR    = [200, 130, 110]; // 耳の内側ピンク
+  const SNOUT_C   = [200, 150, 95];  // マズル
+  const DARK      = [25,  10,  0];   // 目・鼻
+  const WHITE     = [255, 255, 255];
+  const NOSE_C    = [180, 80,  80];  // 鼻（赤みがかった）
 
   const buf = [];
-  for (let i = 0; i < size * size; i++) buf.push([...NAVY]);
+  for (let i = 0; i < size * size; i++) buf.push([0, 0, 0]);
 
   function set(x, y, c) {
     if (x < 0 || x >= size || y < 0 || y >= size) return;
     buf[y * size + x] = [...c];
-  }
-
-  function inCircle(x, y, cx, cy, r) {
-    return (x - cx) ** 2 + (y - cy) ** 2 <= r * r;
-  }
-
-  function inEllipse(x, y, cx, cy, rx, ry) {
-    return (x - cx) ** 2 / rx ** 2 + (y - cy) ** 2 / ry ** 2 <= 1;
   }
 
   function fillCircle(cx, cy, r, c) {
@@ -40,7 +31,7 @@ function makeBearPNG(size) {
     const y1 = Math.min(size - 1, Math.ceil(cy + r + 1));
     for (let y = y0; y <= y1; y++)
       for (let x = x0; x <= x1; x++)
-        if (inCircle(x, y, cx, cy, r)) set(x, y, c);
+        if ((x-cx)**2 + (y-cy)**2 <= r*r) set(x, y, c);
   }
 
   function fillEllipse(cx, cy, rx, ry, c) {
@@ -50,70 +41,87 @@ function makeBearPNG(size) {
     const y1 = Math.min(size - 1, Math.ceil(cy + ry + 1));
     for (let y = y0; y <= y1; y++)
       for (let x = x0; x <= x1; x++)
-        if (inEllipse(x, y, cx, cy, rx, ry)) set(x, y, c);
+        if ((x-cx)**2/rx**2 + (y-cy)**2/ry**2 <= 1) set(x, y, c);
   }
 
-  // グラデーション風背景（上が明るい青、下が濃紺）
+  // グラデーション背景（明るいスカイブルー→鮮やかブルー）
   for (let y = 0; y < size; y++) {
     const t = y / size;
-    const r = Math.round(LIGHTBLUE[0] * (1 - t) + NAVY[0] * t);
-    const g = Math.round(LIGHTBLUE[1] * (1 - t) + NAVY[1] * t);
-    const b = Math.round(LIGHTBLUE[2] * (1 - t) + NAVY[2] * t);
+    const r = Math.round(BG_TOP[0] * (1-t) + BG_BOT[0] * t);
+    const g = Math.round(BG_TOP[1] * (1-t) + BG_BOT[1] * t);
+    const b = Math.round(BG_TOP[2] * (1-t) + BG_BOT[2] * t);
     for (let x = 0; x < size; x++) set(x, y, [r, g, b]);
   }
 
-  // 耳（外側・影）
-  fillCircle(148 * s, 158 * s, 72 * s, BROWN);
-  fillCircle(364 * s, 158 * s, 72 * s, BROWN);
-  // 耳（内側・明るい）
-  fillCircle(148 * s, 154 * s, 44 * s, FUR);
-  fillCircle(364 * s, 154 * s, 44 * s, FUR);
-  // 耳（内側ピンク）
-  fillCircle(148 * s, 154 * s, 26 * s, PINK);
-  fillCircle(364 * s, 154 * s, 26 * s, PINK);
+  // 耳（外側）- 小熊らしく大きめ丸耳
+  fillCircle(150*s, 175*s, 78*s, BROWN);
+  fillCircle(362*s, 175*s, 78*s, BROWN);
+  // 耳（毛色）
+  fillCircle(150*s, 172*s, 62*s, FUR);
+  fillCircle(362*s, 172*s, 62*s, FUR);
+  // 耳の内側（ピンク）
+  fillCircle(150*s, 170*s, 38*s, INNEAR);
+  fillCircle(362*s, 170*s, 38*s, INNEAR);
 
-  // 顔の影（輪郭）
-  fillCircle(256 * s, 285 * s, 158 * s, BROWN);
-  // 顔メイン
-  fillCircle(256 * s, 280 * s, 150 * s, FUR);
-  // 顔の上部ハイライト
-  fillEllipse(256 * s, 220 * s, 110 * s, 70 * s, LIGHTFUR);
+  // 顔（大きくて丸い・小熊らしく）
+  fillCircle(256*s, 295*s, 168*s, BROWN); // 影
+  fillCircle(256*s, 288*s, 160*s, FUR);   // 顔メイン
+  // 頭頂部ハイライト
+  fillEllipse(256*s, 200*s, 100*s, 65*s, LIGHTFUR);
 
-  // 目の周り（影）
-  fillCircle(192 * s, 240 * s, 32 * s, BROWN);
-  fillCircle(320 * s, 240 * s, 32 * s, BROWN);
-  // 目（黒目）
-  fillCircle(192 * s, 238 * s, 26 * s, DARK);
-  fillCircle(320 * s, 238 * s, 26 * s, DARK);
-  // 目の輝き（大）
-  fillCircle(200 * s, 228 * s, 10 * s, WHITE);
-  fillCircle(328 * s, 228 * s, 10 * s, WHITE);
-  // 目の輝き（小）
-  fillCircle(205 * s, 234 * s, 5 * s, WHITE);
-  fillCircle(333 * s, 234 * s, 5 * s, WHITE);
+  // 目（大きくてかわいい・子熊らしく）
+  fillCircle(190*s, 250*s, 36*s, DARK); // 左目
+  fillCircle(322*s, 250*s, 36*s, DARK); // 右目
+  // 目の輝き
+  fillCircle(200*s, 238*s, 13*s, WHITE);
+  fillCircle(332*s, 238*s, 13*s, WHITE);
+  fillCircle(207*s, 247*s,  6*s, WHITE);
+  fillCircle(339*s, 247*s,  6*s, WHITE);
 
-  // 鼻周り（マズル）
-  fillEllipse(256 * s, 308 * s, 68 * s, 52 * s, SNOUT);
-  // 鼻下クリーム
-  fillEllipse(256 * s, 318 * s, 52 * s, 38 * s, CREAM);
-  // 鼻
-  fillEllipse(256 * s, 293 * s, 26 * s, 19 * s, DARK);
-  // 鼻のハイライト
-  fillCircle(248 * s, 288 * s, 7 * s, [80, 60, 55]);
+  // マズル（口周り・楕円）
+  fillEllipse(256*s, 318*s, 70*s, 54*s, SNOUT_C);
+  fillEllipse(256*s, 326*s, 58*s, 44*s, LIGHTFUR);
 
-  // 口（くぼみ）
-  fillCircle(256 * s, 322 * s, 6 * s, SNOUT);
-  // 口角の線（左）
-  for (let i = 0; i < 22 * s; i++) {
-    const x = Math.round((256 - i) * s);
-    const y = Math.round((322 + i * 0.55) * s);
-    fillCircle(x, y, 3 * s, BROWN);
+  // 鼻（小さくてかわいい）
+  fillEllipse(256*s, 300*s, 22*s, 16*s, DARK);
+  fillEllipse(256*s, 297*s, 22*s, 16*s, NOSE_C);
+  fillCircle(248*s, 293*s, 6*s, [230, 120, 120]); // 鼻ハイライト
+
+  // 口（w字型・かわいく）
+  for (let i = 0; i <= 20; i++) {
+    const t2 = i / 20;
+    // 左の弧
+    const lx = Math.round((256 - 40 * t2) * s);
+    const ly = Math.round((322 + 18 * Math.sin(t2 * Math.PI)) * s);
+    fillCircle(lx, ly, 4*s, BROWN);
+    // 右の弧
+    const rx = Math.round((256 + 40 * t2) * s);
+    const ry2 = Math.round((322 + 18 * Math.sin(t2 * Math.PI)) * s);
+    fillCircle(rx, ry2, 4*s, BROWN);
   }
-  // 口角の線（右）
-  for (let i = 0; i < 22 * s; i++) {
-    const x = Math.round((256 + i) * s);
-    const y = Math.round((322 + i * 0.55) * s);
-    fillCircle(x, y, 3 * s, BROWN);
+
+  // ほっぺ（赤みがかったピンク・かわいさUP）
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      // 左ほっぺ
+      if ((x-152*s)**2 + (y-295*s)**2 <= (42*s)**2) {
+        const cur = buf[y*size+x];
+        buf[y*size+x] = [
+          Math.min(255, cur[0] + 30),
+          Math.max(0, cur[1] - 10),
+          Math.max(0, cur[2] - 10),
+        ];
+      }
+      // 右ほっぺ
+      if ((x-360*s)**2 + (y-295*s)**2 <= (42*s)**2) {
+        const cur = buf[y*size+x];
+        buf[y*size+x] = [
+          Math.min(255, cur[0] + 30),
+          Math.max(0, cur[1] - 10),
+          Math.max(0, cur[2] - 10),
+        ];
+      }
+    }
   }
 
   // PNG エンコード
@@ -146,9 +154,7 @@ function makeBearPNG(size) {
     row[0] = 0;
     for (let x = 0; x < size; x++) {
       const [r, g, b] = buf[y * size + x];
-      row[1 + x * 3] = r;
-      row[1 + x * 3 + 1] = g;
-      row[1 + x * 3 + 2] = b;
+      row[1+x*3] = r; row[1+x*3+1] = g; row[1+x*3+2] = b;
     }
     rows.push(row);
   }
@@ -158,4 +164,4 @@ function makeBearPNG(size) {
 
 fs.writeFileSync('public/icon-192.png', makeBearPNG(192));
 fs.writeFileSync('public/icon-512.png', makeBearPNG(512));
-console.log('✅ かっこいい熊アイコンを生成しました');
+console.log('✅ かわいい小熊アイコンを生成しました');

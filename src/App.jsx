@@ -234,11 +234,15 @@ export default function App() {
     };
     if (staffModalOpen.mode === "add") {
       await supabase.from("staff").insert(form);
+      loadStaff();
     } else {
       await supabase.from("staff").update(form).eq("id", staffModalOpen.staff.id);
+      // 順番を維持するためローカルで更新（再取得しない）
+      setStaffList(prev => prev.map(s =>
+        s.id === staffModalOpen.staff.id ? { ...s, ...form } : s
+      ));
     }
     setStaffModalOpen(null);
-    loadStaff();
   }
 
   async function deleteStaff(id) {
