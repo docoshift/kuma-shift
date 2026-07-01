@@ -967,17 +967,17 @@ export default function App() {
                   <span style={{ fontWeight:800, fontSize:22 }}>{YEAR}年 {adminMonth}月</span>
                   <button onClick={() => setAdminMonth(m => m>=12?1:m+1)} style={{ background:"none", border:"2px solid #ddd", borderRadius:8, padding:"8px 18px", cursor:"pointer", fontSize:18, fontWeight:700 }}>＞</button>
                   <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
-                    <button onClick={downloadExcel} style={{ padding:"10px 16px", background:"#1D6F42", color:"#fff", border:"none", borderRadius:6, cursor:"pointer", fontSize:15, fontWeight:700 }}>📊 Excel</button>
-                    <button onClick={printCalendar} style={{ padding:"10px 16px", background:"#E24B4A", color:"#fff", border:"none", borderRadius:6, cursor:"pointer", fontSize:15, fontWeight:700 }}>🖨️ 印刷/PDF</button>
+                    <button onClick={downloadExcel} style={{ padding:isMobile?"10px 16px":"14px 24px", background:"#1D6F42", color:"#fff", border:"none", borderRadius:6, cursor:"pointer", fontSize:isMobile?15:20, fontWeight:700 }}>📊 Excel</button>
+                    <button onClick={printCalendar} style={{ padding:isMobile?"10px 16px":"14px 24px", background:"#E24B4A", color:"#fff", border:"none", borderRadius:6, cursor:"pointer", fontSize:isMobile?15:20, fontWeight:700 }}>🖨️ 印刷/PDF</button>
                   </div>
                 </div>
                 <div style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap" }}>
-                  <span style={{ fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:4 }}><span style={{ display:"inline-block", width:22, height:12, background:"#B5D4F4", border:"1px solid #185FA5", borderRadius:2 }} />希望</span>
-                  <span style={{ fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:4 }}><span style={{ display:"inline-block", width:22, height:12, background:"#CCFF66", border:"1px solid #8AAD00", borderRadius:2 }} />調整済み</span>
+                  <span style={{ fontSize:isMobile?13:18, fontWeight:600, display:"flex", alignItems:"center", gap:4 }}><span style={{ display:"inline-block", width:isMobile?22:30, height:isMobile?12:18, background:"#B5D4F4", border:"1px solid #185FA5", borderRadius:2 }} />希望</span>
+                  <span style={{ fontSize:isMobile?13:18, fontWeight:600, display:"flex", alignItems:"center", gap:4 }}><span style={{ display:"inline-block", width:isMobile?22:30, height:isMobile?12:18, background:"#CCFF66", border:"1px solid #8AAD00", borderRadius:2 }} />調整済み</span>
                   {staffList.some(s => s.hourly_wage) && (
-                    <div style={{ marginLeft:"auto", background:"#E6F1FB", border:"2px solid #185FA5", borderRadius:8, padding:"8px 18px", display:"flex", alignItems:"center", gap:10 }}>
-                      <span style={{ fontSize:14, fontWeight:700, color:"#185FA5" }}>📊 {adminMonth}月 推定人件費</span>
-                      <span style={{ fontSize:20, fontWeight:900, color:"#185FA5" }}>¥{calcLaborCost().toLocaleString()}</span>
+                    <div style={{ marginLeft:"auto", background:"#E6F1FB", border:"2px solid #185FA5", borderRadius:8, padding:isMobile?"8px 18px":"12px 24px", display:"flex", alignItems:"center", gap:10 }}>
+                      <span style={{ fontSize:isMobile?14:20, fontWeight:700, color:"#185FA5" }}>📊 {adminMonth}月 推定人件費</span>
+                      <span style={{ fontSize:isMobile?20:28, fontWeight:900, color:"#185FA5" }}>¥{calcLaborCost().toLocaleString()}</span>
                     </div>
                   )}
                 </div>
@@ -1078,10 +1078,10 @@ export default function App() {
               </div>
               {/* 自動作成 ＋ スタッフへ反映 */}
               <div style={{ padding:"14px 16px", display:"flex", gap:12, alignItems:"center", flexWrap:"wrap" }}>
-                <button onClick={()=>{ setAutoStaffPriority(staffList.reduce((acc,s)=>({...acc,[s.id]:s.priority??''}),{})); setAutoCreateOpen(true); }} style={{ padding:"11px 20px", background:"#8AAD00", color:"#fff", border:"none", borderRadius:8, cursor:"pointer", fontWeight:800, fontSize:15 }}>🤖 シフト自動作成</button>
+                <button onClick={()=>{ setAutoStaffPriority(staffList.reduce((acc,s)=>({...acc,[s.id]:s.priority??''}),{})); setAutoCreateOpen(true); }} style={{ padding:isMobile?"11px 20px":"16px 28px", background:"#8AAD00", color:"#fff", border:"none", borderRadius:8, cursor:"pointer", fontWeight:800, fontSize:isMobile?15:20 }}>🤖 シフト自動作成</button>
                 <div style={{ flex:1 }} />
-                <button onClick={()=>{ setReflectModal(true); setReflectSelected(staffList.map(s=>s.id)); }} style={{ padding:"11px 24px", background:"#185FA5", color:"#fff", border:"none", borderRadius:8, cursor:"pointer", fontWeight:800, fontSize:15 }}>🌐 全員のシフトを反映</button>
-                <button onClick={()=>{ setReflectModal(true); setReflectSelected([]); }} style={{ padding:"11px 24px", background:"#fff", color:"#185FA5", border:"2px solid #185FA5", borderRadius:8, cursor:"pointer", fontWeight:800, fontSize:15 }}>👤 個別を選んで反映</button>
+                <button onClick={()=>{ setReflectModal(true); setReflectSelected(staffList.map(s=>s.id)); }} style={{ padding:isMobile?"11px 24px":"16px 32px", background:"#185FA5", color:"#fff", border:"none", borderRadius:8, cursor:"pointer", fontWeight:800, fontSize:isMobile?15:20 }}>🌐 全員のシフトを反映</button>
+                <button onClick={()=>{ setReflectModal(true); setReflectSelected([]); }} style={{ padding:isMobile?"11px 24px":"16px 32px", background:"#fff", color:"#185FA5", border:"2px solid #185FA5", borderRadius:8, cursor:"pointer", fontWeight:800, fontSize:isMobile?15:20 }}>👤 個別を選んで反映</button>
               </div>
             </div>
           )}
