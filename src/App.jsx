@@ -153,11 +153,19 @@ export default function App() {
 
   async function loadStaff() {
     setLoadingStaff(true);
-    const { data, error } = await supabase.from("staff").select("*").order("display_order", { nullsFirst: false }).order("created_at");
-    if (!error && data) setStaffList(data);
-    else if (error) {
-      const { data: fallback } = await supabase.from("staff").select("*").order("created_at");
-      if (fallback) setStaffList(fallback);
+    try {
+      const { data, error } = await supabase.from("staff").select("*").order("created_at");
+      if (!error && data) {
+        data.sort((a, b) => {
+          if (a.display_order == null && b.display_order == null) return 0;
+          if (a.display_order == null) return 1;
+          if (b.display_order == null) return -1;
+          return a.display_order - b.display_order;
+        });
+        setStaffList(data);
+      }
+    } catch(e) {
+      // 既存のstaffListを維持（消えない）
     }
     setLoadingStaff(false);
   }
