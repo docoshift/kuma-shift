@@ -105,6 +105,7 @@ export default function App() {
   const [autoNote, setAutoNote] = useState("");
   const [autoStaffPriority, setAutoStaffPriority] = useState({});
   const [staffDragFrom, setStaffDragFrom] = useState(null);
+  const [showRetired, setShowRetired] = useState(false);
   const [staffDragOver, setStaffDragOver] = useState(null);
   const [autoResult, setAutoResult] = useState(null);
 
@@ -878,7 +879,12 @@ export default function App() {
             <div style={{ padding:16 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
                 <div style={{ fontSize:18, fontWeight:700 }}>スタッフ管理</div>
-                <button onClick={() => { setStaffModalOpen({ mode:"add" }); setStaffForm({ name:"", hourly_wage:"", contact:"", rating:3, priority:"" }); }} style={{ padding:"12px 20px", background:"#185FA5", color:"#fff", border:"none", borderRadius:8, cursor:"pointer", fontWeight:700, fontSize:16 }}>＋ スタッフ追加</button>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button onClick={() => { setStaffModalOpen({ mode:"add" }); setStaffForm({ name:"", hourly_wage:"", contact:"", rating:3, priority:"" }); setShowRetired(false); }} style={{ padding:"12px 20px", background:"#185FA5", color:"#fff", border:"none", borderRadius:8, cursor:"pointer", fontWeight:700, fontSize:16 }}>＋ スタッフ追加</button>
+                  <button onClick={() => setShowRetired(v => !v)} style={{ padding:"12px 20px", background:showRetired?"#888":"#f0f0f0", color:showRetired?"#fff":"#666", border:"none", borderRadius:8, cursor:"pointer", fontWeight:700, fontSize:16 }}>
+                    退社スタッフ {retiredStaff.length > 0 && `(${retiredStaff.length})`}
+                  </button>
+                </div>
               </div>
               {/* 人件費サマリー */}
               {staffList.some(s => s.hourly_wage) && (
@@ -887,9 +893,9 @@ export default function App() {
                   <span style={{ fontSize:24, fontWeight:900, color:"#185FA5" }}>¥{calcLaborCost().toLocaleString()}</span>
                 </div>
               )}
-              {activeStaff.length===0 && <div style={{ textAlign:"center", color:"#999", padding:"2rem", fontSize:16 }}>スタッフが登録されていません</div>}
-              {activeStaff.length > 0 && <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>☰ をドラッグ、または ▲▼ で順番を変えられます</div>}
-              {activeStaff.map((s, index) => (
+              {!showRetired && activeStaff.length===0 && <div style={{ textAlign:"center", color:"#999", padding:"2rem", fontSize:16 }}>スタッフが登録されていません</div>}
+              {!showRetired && activeStaff.length > 0 && <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>☰ をドラッグ、または ▲▼ で順番を変えられます</div>}
+              {!showRetired && activeStaff.map((s, index) => (
                 <div key={s.id}
                   draggable
                   onDragStart={() => setStaffDragFrom(index)}
@@ -927,20 +933,19 @@ export default function App() {
                 </div>
               ))}
 
-              {/* 退社スタッフ */}
-              {retiredStaff.length > 0 && (
-                <div style={{ marginTop:24 }}>
-                  <div style={{ fontSize:14, fontWeight:700, color:"#999", borderBottom:"1px solid #eee", paddingBottom:8, marginBottom:12 }}>退社スタッフ</div>
-                  {retiredStaff.map(s => (
-                    <div key={s.id} style={{ border:"1px solid #eee", borderRadius:10, padding:"12px 16px", marginBottom:8, display:"flex", justifyContent:"space-between", alignItems:"center", background:"#f9f9f9", opacity:0.7 }}>
+              {/* 退社スタッフ一覧（ボタン押したとき） */}
+              {showRetired && (
+                retiredStaff.length === 0
+                  ? <div style={{ textAlign:"center", color:"#999", padding:"2rem", fontSize:16 }}>退社スタッフはいません</div>
+                  : retiredStaff.map(s => (
+                    <div key={s.id} style={{ border:"1px solid #eee", borderRadius:10, padding:"14px 16px", marginBottom:8, display:"flex", justifyContent:"space-between", alignItems:"center", background:"#f9f9f9" }}>
                       <div>
-                        <div style={{ fontSize:16, fontWeight:700, color:"#999" }}>{s.name}</div>
+                        <div style={{ fontSize:17, fontWeight:700, color:"#999" }}>{s.name}</div>
                         <div style={{ fontSize:12, color:"#bbb", marginTop:2 }}>退社済み・アクセス不可</div>
                       </div>
-                      <button onClick={() => restoreStaff(s.id)} style={{ padding:"8px 16px", border:"2px solid #888", color:"#888", background:"#fff", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:700 }}>復帰</button>
+                      <button onClick={() => restoreStaff(s.id)} style={{ padding:"10px 18px", border:"2px solid #888", color:"#888", background:"#fff", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:700 }}>復帰</button>
                     </div>
-                  ))}
-                </div>
+                  ))
               )}
             </div>
           )}
