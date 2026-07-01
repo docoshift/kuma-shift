@@ -166,7 +166,9 @@ export default function App() {
     setLoadingStaff(true);
     try {
       const { data, error } = await supabase.from("staff").select("*").order("created_at");
-      if (!error && data) {
+      if (error) {
+        alert("スタッフ読み込みエラー: " + JSON.stringify(error));
+      } else if (data) {
         data.sort((a, b) => {
           if (a.display_order == null && b.display_order == null) return 0;
           if (a.display_order == null) return 1;
@@ -174,9 +176,10 @@ export default function App() {
           return a.display_order - b.display_order;
         });
         setStaffList(data);
+        if (data.length === 0) alert("スタッフデータが0件です。Supabaseの接続を確認してください。");
       }
     } catch(e) {
-      // 既存のstaffListを維持（消えない）
+      alert("スタッフ読み込み例外: " + e.message);
     }
     setLoadingStaff(false);
   }
