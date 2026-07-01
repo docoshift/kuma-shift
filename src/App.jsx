@@ -50,6 +50,13 @@ const YEAR = now.getFullYear();
 const NEXT_MONTH = now.getMonth() + 2 > 12 ? 1 : now.getMonth() + 2;
 
 export default function App() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
   const [staffList, setStaffList] = useState([]);
   const [loadingStaff, setLoadingStaff] = useState(true);
   const [staffModalOpen, setStaffModalOpen] = useState(null);
@@ -557,16 +564,16 @@ export default function App() {
 
       {/* ナビ */}
       {page === "staff" ? (
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"26px 20px", borderBottom:"3px solid #185FA5", background:"#185FA5" }}>
-          <span style={{ fontSize:30, fontWeight:900, color:"#fff", letterSpacing:2 }}>🐻 DocoSHIFT</span>
-          <button onClick={() => setPage("admin")} style={{ fontSize:13, color:"rgba(255,255,255,0.6)", background:"transparent", border:"1px solid rgba(255,255,255,0.3)", borderRadius:6, padding:"6px 12px", cursor:"pointer", fontWeight:600 }}>管理者</button>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding: isMobile?"14px 14px":"26px 20px", borderBottom:"3px solid #185FA5", background:"#185FA5" }}>
+          <span style={{ fontSize: isMobile?20:30, fontWeight:900, color:"#fff", letterSpacing:2 }}>🐻 DocoSHIFT</span>
+          <button onClick={() => setPage("admin")} style={{ fontSize: isMobile?12:13, color:"rgba(255,255,255,0.6)", background:"transparent", border:"1px solid rgba(255,255,255,0.3)", borderRadius:6, padding: isMobile?"5px 10px":"6px 12px", cursor:"pointer", fontWeight:600 }}>管理者</button>
         </div>
       ) : (
         <div style={{ display:"flex", borderBottom:"3px solid #185FA5" }}>
-          <button onClick={() => { setPage("staff"); setAdminUnlocked(false); setPwInput(""); }} style={{ padding:"26px 20px", background:"#f0f4fa", color:"#185FA5", border:"none", cursor:"pointer", fontWeight:800, fontSize:20 }}>← スタッフ</button>
-          <div style={{ flex:1, padding:"26px 20px", background:"#185FA5", color:"#fff", fontWeight:900, fontSize:26, textAlign:"center", position:"relative", letterSpacing:1 }}>
+          <button onClick={() => { setPage("staff"); setAdminUnlocked(false); setPwInput(""); }} style={{ padding: isMobile?"14px 12px":"26px 20px", background:"#f0f4fa", color:"#185FA5", border:"none", cursor:"pointer", fontWeight:800, fontSize: isMobile?15:20 }}>← スタッフ</button>
+          <div style={{ flex:1, padding: isMobile?"14px 12px":"26px 20px", background:"#185FA5", color:"#fff", fontWeight:900, fontSize: isMobile?18:26, textAlign:"center", position:"relative", letterSpacing:1 }}>
             管理者 シフト管理
-            {pendingCount > 0 && <span style={{ position:"absolute", top:16, right:24, background:"#E24B4A", color:"#fff", borderRadius:10, padding:"2px 9px", fontSize:14, fontWeight:700 }}>{pendingCount}</span>}
+            {pendingCount > 0 && <span style={{ position:"absolute", top: isMobile?10:16, right: isMobile?12:24, background:"#E24B4A", color:"#fff", borderRadius:10, padding:"2px 9px", fontSize:14, fontWeight:700 }}>{pendingCount}</span>}
           </div>
         </div>
       )}
@@ -575,7 +582,7 @@ export default function App() {
       {page==="staff" && (
         <div style={{ display:"flex", borderBottom:"2px solid #eee", background:"#fafafa" }}>
           {[["wish","シフト希望入力"],["swap","交代申請"]].map(([k,label]) => (
-            <button key={k} onClick={() => { setStaffPage(k); setSubmitted(false); setSwapSubmitted(false); }} style={{ flex:1, padding:"14px 8px", fontSize:16, background:staffPage===k?"#E6F1FB":"transparent", color:staffPage===k?"#185FA5":"#666", border:"none", borderBottom:staffPage===k?"3px solid #185FA5":"3px solid transparent", cursor:"pointer", fontWeight:staffPage===k?700:400 }}>{label}</button>
+            <button key={k} onClick={() => { setStaffPage(k); setSubmitted(false); setSwapSubmitted(false); }} style={{ flex:1, padding: isMobile?"10px 4px":"14px 8px", fontSize: isMobile?13:16, background:staffPage===k?"#E6F1FB":"transparent", color:staffPage===k?"#185FA5":"#666", border:"none", borderBottom:staffPage===k?"3px solid #185FA5":"3px solid transparent", cursor:"pointer", fontWeight:staffPage===k?700:400 }}>{label}</button>
           ))}
         </div>
       )}
@@ -605,22 +612,22 @@ export default function App() {
             <span style={{ fontWeight:700, fontSize:18 }}>{YEAR}年{month}月</span>
             <button onClick={() => setMonth(m => m>=12?1:m+1)} style={{ background:"none", border:"1px solid #ddd", borderRadius:8, padding:"8px 20px", cursor:"pointer", fontSize:18 }}>＞</button>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:3, padding:"8px 0" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap: isMobile?2:3, padding:"8px 0" }}>
             {DOW.map((d, i) => (
-              <div key={d} style={{ textAlign:"center", fontSize:15, padding:"10px 0", color:i===0?"#E24B4A":i===6?"#185FA5":"#555", fontWeight:700 }}>{d}</div>
+              <div key={d} style={{ textAlign:"center", fontSize: isMobile?12:15, padding: isMobile?"6px 0":"10px 0", color:i===0?"#E24B4A":i===6?"#185FA5":"#555", fontWeight:700 }}>{d}</div>
             ))}
             {Array.from({ length: new Date(YEAR, month-1, 1).getDay() }).map((_, i) => (
-              <div key={i} style={{ aspectRatio:"1/1", minHeight:150, background:"#f9f9f9", borderRadius:8 }} />
+              <div key={i} style={{ aspectRatio:"1/1", minHeight: isMobile?44:150, background:"#f9f9f9", borderRadius: isMobile?4:8 }} />
             ))}
             {Array.from({ length: daysInMonth }, (_, i) => i+1).map(d => {
               const dow = getDow(YEAR, month, d);
               return (
-                <div key={d} onClick={() => openWishModal(d)} style={{ aspectRatio:"1/1", minHeight:150, borderRadius:8, border: wishDays[d]?"3px solid #185FA5":"1px solid #e0e0e0", padding:"10px 4px", cursor:"pointer", background:wishDays[d]?"#ddeeff":"#fff", display:"flex", flexDirection:"column", alignItems:"center", boxShadow: wishDays[d]?"0 2px 10px rgba(24,95,165,0.2)":"none", boxSizing:"border-box" }}>
-                  <div style={{ fontSize:30, fontWeight:700, color:dow===0?"#E24B4A":dow===6?"#185FA5":"#333" }}>{d}</div>
+                <div key={d} onClick={() => openWishModal(d)} style={{ aspectRatio:"1/1", minHeight: isMobile?44:150, borderRadius: isMobile?4:8, border: wishDays[d]?"3px solid #185FA5":"1px solid #e0e0e0", padding: isMobile?"4px 2px":"10px 4px", cursor:"pointer", background:wishDays[d]?"#ddeeff":"#fff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", boxShadow: wishDays[d]?"0 2px 10px rgba(24,95,165,0.2)":"none", boxSizing:"border-box" }}>
+                  <div style={{ fontSize: isMobile?13:30, fontWeight:700, color:dow===0?"#E24B4A":dow===6?"#185FA5":"#333" }}>{d}</div>
                   {wishDays[d] && (
-                    <div style={{ fontSize:20, background:"#fff", color:"#111", borderRadius:4, padding:"5px 4px", marginTop:6, textAlign:"center", lineHeight:1.4, width:"100%", boxSizing:"border-box", fontWeight:800, border:"1px solid #ddd" }}>
-                      {wishDays[d].replace("-","〜")}
-                    </div>
+                    isMobile
+                      ? <div style={{ width:6, height:6, borderRadius:"50%", background:"#185FA5", marginTop:2 }} />
+                      : <div style={{ fontSize:20, background:"#fff", color:"#111", borderRadius:4, padding:"5px 4px", marginTop:6, textAlign:"center", lineHeight:1.4, width:"100%", boxSizing:"border-box", fontWeight:800, border:"1px solid #ddd" }}>{wishDays[d].replace("-","〜")}</div>
                   )}
                 </div>
               );
@@ -698,7 +705,7 @@ export default function App() {
         <div>
           <div style={{ display:"flex", alignItems:"center", borderBottom:"2px solid #ddd" }}>
             {[["list","希望一覧"],["shift","シフト調整"],["swap","交代申請"],["staffmgmt","スタッフ管理"]].map(([t, label]) => (
-              <button key={t} onClick={() => setAdminTab(t)} style={{ flex:1, padding:"14px 6px", fontSize:16, background:adminTab===t?"#E6F1FB":"#fff", color:adminTab===t?"#185FA5":"#555", border:"none", borderBottom:adminTab===t?"3px solid #185FA5":"3px solid transparent", cursor:"pointer", fontWeight:adminTab===t?800:500 }}>
+              <button key={t} onClick={() => setAdminTab(t)} style={{ flex:1, padding: isMobile?"10px 2px":"14px 6px", fontSize: isMobile?11:16, background:adminTab===t?"#E6F1FB":"#fff", color:adminTab===t?"#185FA5":"#555", border:"none", borderBottom:adminTab===t?"3px solid #185FA5":"3px solid transparent", cursor:"pointer", fontWeight:adminTab===t?800:500 }}>
                 {label}{t==="swap"&&pendingCount>0?` (${pendingCount})`:""}
               </button>
             ))}
