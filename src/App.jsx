@@ -241,8 +241,14 @@ export default function App() {
   }
 
   async function deleteStaff(id) {
-    if (!confirm("このスタッフを削除しますか？")) return;
-    await supabase.from("staff").delete().eq("id", id);
+    if (!confirm("このスタッフを退社済みにしますか？\nアプリへのアクセスができなくなります。")) return;
+    await supabase.from("staff").update({ is_retired: true }).eq("id", id);
+    loadStaff();
+  }
+
+  async function restoreStaff(id) {
+    if (!confirm("このスタッフを現役に戻しますか？")) return;
+    await supabase.from("staff").update({ is_retired: false }).eq("id", id);
     loadStaff();
   }
 
@@ -638,6 +644,23 @@ export default function App() {
     );
   }
 
+  // 退社スタッフはアプリをブロック
+  const myStaffData = staffList.find(s => s.name === myName);
+  if (nameRegistered && !adminBypass && myStaffData?.is_retired) {
+    return (
+      <div style={{ minHeight:"100vh", background:"#185FA5", display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
+        <div style={{ background:"white", borderRadius:20, padding:"36px 28px", maxWidth:340, width:"100%", textAlign:"center" }}>
+          <div style={{ fontSize:56, marginBottom:12 }}>🚫</div>
+          <div style={{ fontSize:20, fontWeight:700, color:"#333", marginBottom:12 }}>アクセスできません</div>
+          <div style={{ fontSize:14, color:"#888" }}>このアカウントは無効になっています。<br/>管理者にお問い合わせください。</div>
+        </div>
+      </div>
+    );
+  }
+
+  const activeStaff = staffList.filter(s => !s.is_retired);
+  const retiredStaff = staffList.filter(s => s.is_retired);
+
   return (
     <div style={{ fontFamily:"sans-serif", width:"100vw", margin:0, padding:0, overflowX:"hidden" }}>
 
@@ -864,9 +887,9 @@ export default function App() {
                   <span style={{ fontSize:24, fontWeight:900, color:"#185FA5" }}>¥{calcLaborCost().toLocaleString()}</span>
                 </div>
               )}
-              {staffList.length===0 && <div style={{ textAlign:"center", color:"#999", padding:"2rem", fontSize:16 }}>スタッフが登録されていません</div>}
-              {staffList.length > 0 && <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>☰ をドラッグ、または ▲▼ で順番を変えられます</div>}
-              {staffList.map((s, index) => (
+              {activeStaff.length===0 && <div style={{ textAlign:"center", color:"#999", padding:"2rem", fontSize:16 }}>スタッフが登録されていません</div>}
+              {activeStaff.length > 0 && <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>☰ をドラッグ、または ▲▼ で順番を変えられます</div>}
+              {activeStaff.map((s, index) => (
                 <div key={s.id}
                   draggable
                   onDragStart={() => setStaffDragFrom(index)}
@@ -884,8 +907,8 @@ export default function App() {
                     <div style={{ display:"flex", flexDirection:"column", gap:2 }}>
                       <button onClick={() => moveStaff(index, -1)} disabled={index===0}
                         style={{ padding:"4px 8px", fontSize:13, lineHeight:1, border:"1px solid #ddd", borderRadius:5, cursor:index===0?"not-allowed":"pointer", background:"#f5f5f5", color:index===0?"#ccc":"#555", fontWeight:700 }}>▲</button>
-                      <button onClick={() => moveStaff(index, 1)} disabled={index===staffList.length-1}
-                        style={{ padding:"4px 8px", fontSize:13, lineHeight:1, border:"1px solid #ddd", borderRadius:5, cursor:index===staffList.length-1?"not-allowed":"pointer", background:"#f5f5f5", color:index===staffList.length-1?"#ccc":"#555", fontWeight:700 }}>▼</button>
+                      <button onClick={() => moveStaff(index, 1)} disabled={index===activeStaff.length-1}
+                        style={{ padding:"4px 8px", fontSize:13, lineHeight:1, border:"1px solid #ddd", borderRadius:5, cursor:index===activeStaff.length-1?"not-allowed":"pointer", background:"#f5f5f5", color:index===activeStaff.length-1?"#ccc":"#555", fontWeight:700 }}>▼</button>
                     </div>
                     <span style={{ fontSize:20, color:"#bbb", cursor:"grab", userSelect:"none" }}>☰</span>
                     <div>
@@ -899,10 +922,26 @@ export default function App() {
                   </div>
                   <div style={{ display:"flex", gap:10 }}>
                     <button onClick={() => { setStaffModalOpen({ mode:"edit", staff:s }); setStaffForm({ name:s.name, hourly_wage:s.hourly_wage||"", contact:s.contact||"", rating:s.rating||3, priority:s.priority||"" }); }} style={{ padding:"10px 20px", border:"2px solid #185FA5", color:"#185FA5", background:"#fff", borderRadius:8, cursor:"pointer", fontSize:16, fontWeight:700 }}>編集</button>
-                    <button onClick={() => deleteStaff(s.id)} style={{ padding:"10px 20px", border:"2px solid #E24B4A", color:"#E24B4A", background:"#fff", borderRadius:8, cursor:"pointer", fontSize:16, fontWeight:700 }}>削除</button>
+                    <button onClick={() => deleteStaff(s.id)} style={{ padding:"10px 20px", border:"2px solid #E24B4A", color:"#E24B4A", background:"#fff", borderRadius:8, cursor:"pointer", fontSize:16, fontWeight:700 }}>退社</button>
                   </div>
                 </div>
               ))}
+
+              {/* 退社スタッフ */}
+              {retiredStaff.length > 0 && (
+                <div style={{ marginTop:24 }}>
+                  <div style={{ fontSize:14, fontWeight:700, color:"#999", borderBottom:"1px solid #eee", paddingBottom:8, marginBottom:12 }}>退社スタッフ</div>
+                  {retiredStaff.map(s => (
+                    <div key={s.id} style={{ border:"1px solid #eee", borderRadius:10, padding:"12px 16px", marginBottom:8, display:"flex", justifyContent:"space-between", alignItems:"center", background:"#f9f9f9", opacity:0.7 }}>
+                      <div>
+                        <div style={{ fontSize:16, fontWeight:700, color:"#999" }}>{s.name}</div>
+                        <div style={{ fontSize:12, color:"#bbb", marginTop:2 }}>退社済み・アクセス不可</div>
+                      </div>
+                      <button onClick={() => restoreStaff(s.id)} style={{ padding:"8px 16px", border:"2px solid #888", color:"#888", background:"#fff", borderRadius:8, cursor:"pointer", fontSize:14, fontWeight:700 }}>復帰</button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1061,18 +1100,18 @@ export default function App() {
       {/* シフト編集モーダル */}
       {shiftModal !== null && scopeModal === null && (
         <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center" }}>
-          <div style={{ background:"#fff", borderRadius:14, padding:"1.4rem", width:270, boxShadow:"0 8px 32px rgba(0,0,0,0.2)" }}>
-            <div style={{ fontSize:15, fontWeight:600, marginBottom:4 }}>{adminMonth}月{shiftModal.d}日 シフト編集</div>
-            <div style={{ fontSize:13, color:"#666", marginBottom:14 }}>{staffList.find(s=>s.id===shiftModal.staffId)?.name}</div>
+          <div style={{ background:"#fff", borderRadius:22, padding:"2.8rem 3rem", width:isMobile?"96vw":720, boxShadow:"0 8px 40px rgba(0,0,0,0.22)" }}>
+            <div style={{ fontSize:26, fontWeight:700, marginBottom:8 }}>{adminMonth}月{shiftModal.d}日 シフト編集</div>
+            <div style={{ fontSize:20, color:"#666", marginBottom:28 }}>{staffList.find(s=>s.id===shiftModal.staffId)?.name}</div>
             {[["開始", startTime, setStartTime, times],["終了", endTime, setEndTime, endTimes]].map(([label, val, setter, opts]) => (
-              <div key={label} style={{ display:"flex", gap:8, alignItems:"center", marginBottom:12 }}>
-                <label style={{ fontSize:13, color:"#666", minWidth:36 }}>{label}</label>
-                <select value={val} onChange={e => setter(e.target.value)} style={{ flex:1, fontSize:14, padding:"5px 8px", border:"1px solid #ddd", borderRadius:4 }}>{opts.map(t => <option key={t}>{t}</option>)}</select>
+              <div key={label} style={{ display:"flex", gap:16, alignItems:"center", marginBottom:24 }}>
+                <label style={{ fontSize:22, color:"#666", minWidth:64 }}>{label}</label>
+                <select value={val} onChange={e => setter(e.target.value)} style={{ flex:1, fontSize:24, padding:"14px 18px", border:"2px solid #ddd", borderRadius:10 }}>{opts.map(t => <option key={t}>{t}</option>)}</select>
               </div>
             ))}
-            <div style={{ display:"flex", gap:8 }}>
-              <button onClick={() => setShiftModal(null)} style={{ flex:1, fontSize:14, padding:11, cursor:"pointer", border:"1px solid #ddd", borderRadius:8 }}>キャンセル</button>
-              <button onClick={saveShiftLocal} style={{ flex:1, fontSize:14, padding:11, background:"#185FA5", color:"#fff", border:"none", borderRadius:8, cursor:"pointer", fontWeight:700 }}>保存（草稿）</button>
+            <div style={{ display:"flex", gap:16, marginTop:12 }}>
+              <button onClick={() => setShiftModal(null)} style={{ flex:1, fontSize:20, padding:20, cursor:"pointer", border:"2px solid #ddd", borderRadius:12 }}>キャンセル</button>
+              <button onClick={saveShiftLocal} style={{ flex:1, fontSize:20, padding:20, background:"#185FA5", color:"#fff", border:"none", borderRadius:12, cursor:"pointer", fontWeight:700 }}>保存（草稿）</button>
             </div>
           </div>
         </div>
