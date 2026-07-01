@@ -110,7 +110,18 @@ export default function App() {
 
   useEffect(() => {
     loadStaff();
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'activated') {
+              window.location.reload();
+            }
+          });
+        });
+      });
+    }
   }, []);
 
   useEffect(() => { loadShiftState(adminMonth); }, [adminMonth]);
