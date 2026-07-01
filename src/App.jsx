@@ -57,6 +57,11 @@ export default function App() {
     return () => window.removeEventListener('resize', handler);
   }, []);
 
+  const [myName, setMyName] = useState(() => localStorage.getItem('docoshift_name') || '');
+  const [nameRegistered, setNameRegistered] = useState(() => !!localStorage.getItem('docoshift_name'));
+  const [nameSelectTemp, setNameSelectTemp] = useState('');
+  const [adminBypass, setAdminBypass] = useState(false);
+
   const [staffList, setStaffList] = useState([]);
   const [loadingStaff, setLoadingStaff] = useState(true);
   const [staffModalOpen, setStaffModalOpen] = useState(null);
@@ -107,6 +112,18 @@ export default function App() {
   const adminDays = new Date(YEAR, adminMonth, 0).getDate();
   const times = ["15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00"];
   const endTimes = ["20:00","20:30","21:00","21:30","22:00","22:30","23:00","23:30","24:00"];
+
+  useEffect(() => {
+    if (myName) setSelectedStaff(myName);
+  }, [myName, staffList]);
+
+  function registerMyName() {
+    if (!nameSelectTemp) return alert('名前を選択してください');
+    localStorage.setItem('docoshift_name', nameSelectTemp);
+    setMyName(nameSelectTemp);
+    setSelectedStaff(nameSelectTemp);
+    setNameRegistered(true);
+  }
 
   useEffect(() => {
     loadStaff();
@@ -581,6 +598,46 @@ export default function App() {
   const chip = (bg, color) => ({ fontSize:11, background:bg, color, borderRadius:3, padding:"3px 4px", margin:"1px 0", cursor:"grab", lineHeight:1.3, display:"flex", justifyContent:"space-between", alignItems:"center", fontWeight:700 });
   const pendingCount = swapRequests.filter(r => r.status === "pending").length;
 
+  // 名前未登録かつ管理者バイパスでもない場合は登録画面を表示
+  if (!nameRegistered && !adminBypass) {
+    return (
+      <div style={{ minHeight:"100vh", background:"#185FA5", display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
+        <div style={{ background:"white", borderRadius:20, padding:"36px 28px", maxWidth:340, width:"100%", textAlign:"center", boxShadow:"0 8px 32px rgba(0,0,0,0.18)" }}>
+          <div style={{ fontSize:64, marginBottom:8 }}>🐻</div>
+          <div style={{ fontSize:24, fontWeight:900, color:"#185FA5", marginBottom:4, letterSpacing:1 }}>DocoSHIFT</div>
+          <div style={{ fontSize:14, color:"#888", marginBottom:24 }}>はじめに名前を登録してください</div>
+          {loadingStaff ? (
+            <div style={{ color:"#aaa", fontSize:14, padding:20 }}>読み込み中...</div>
+          ) : (
+            <>
+              <select
+                value={nameSelectTemp}
+                onChange={e => setNameSelectTemp(e.target.value)}
+                style={{ width:"100%", fontSize:17, padding:"12px 14px", border:"2px solid #ddd", borderRadius:10, marginBottom:16, boxSizing:"border-box" }}
+              >
+                <option value="">名前を選んでください</option>
+                {staffList.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+              </select>
+              <button
+                onClick={registerMyName}
+                style={{ width:"100%", background:"#185FA5", color:"white", border:"none", borderRadius:10, padding:"14px", fontSize:17, fontWeight:700, cursor:"pointer", marginBottom:12 }}
+              >
+                登録する
+              </button>
+              <div style={{ fontSize:12, color:"#bbb", marginBottom:20 }}>⚠️ 一度登録すると変更できません</div>
+            </>
+          )}
+          <div
+            onClick={() => setAdminBypass(true)}
+            style={{ fontSize:12, color:"#ccc", cursor:"pointer", marginTop:4 }}
+          >
+            管理者の方はこちら
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ fontFamily:"sans-serif", width:"100vw", margin:0, padding:0, overflowX:"hidden" }}>
 
@@ -619,15 +676,21 @@ export default function App() {
           </div>
           <div style={{ padding:"12px 4px", borderBottom:"1px solid #eee", display:"flex", gap:8, alignItems:"center" }}>
             <label style={{ fontSize:14, color:"#666", minWidth:40 }}>名前</label>
-            <select value={selectedStaff} onChange={e => {
-              const newName = e.target.value;
-              setWishDaysByStaff(prev => ({ ...prev, [selectedStaff]: wishDays }));
-              setSelectedStaff(newName);
-              setWishDays(wishDaysByStaff[newName] || {});
-            }} style={{ flex:1, fontSize:16, padding:"10px 12px", border:"1px solid #ddd", borderRadius:8 }}>
-              <option value="">選択してください</option>
-              {staffList.map(s => <option key={s.id}>{s.name}</option>)}
-            </select>
+            {nameRegistered ? (
+              <div style={{ flex:1, fontSize:16, padding:"10px 12px", background:"#f0f4ff", borderRadius:8, color:"#185FA5", fontWeight:700, border:"1px solid #c0d0f0" }}>
+                {myName}
+              </div>
+            ) : (
+              <select value={selectedStaff} onChange={e => {
+                const newName = e.target.value;
+                setWishDaysByStaff(prev => ({ ...prev, [selectedStaff]: wishDays }));
+                setSelectedStaff(newName);
+                setWishDays(wishDaysByStaff[newName] || {});
+              }} style={{ flex:1, fontSize:16, padding:"10px 12px", border:"1px solid #ddd", borderRadius:8 }}>
+                <option value="">選択してください</option>
+                {staffList.map(s => <option key={s.id}>{s.name}</option>)}
+              </select>
+            )}
           </div>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 4px", borderBottom:"1px solid #eee" }}>
             <button onClick={() => setMonth(m => m<=1?12:m-1)} style={{ background:"none", border:"1px solid #ddd", borderRadius:8, padding:"8px 20px", cursor:"pointer", fontSize:18 }}>＜</button>
